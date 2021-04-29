@@ -129,6 +129,9 @@ func SetObjectDefaults_VirtualMachine(in *VirtualMachine) {
 			if in.Spec.Template.Spec.Domain.Features.Pvspinlock != nil {
 				SetDefaults_FeatureState(in.Spec.Template.Spec.Domain.Features.Pvspinlock)
 			}
+			if in.Spec.Template.Spec.Domain.Features.PMU != nil {
+				SetDefaults_FeatureState(in.Spec.Template.Spec.Domain.Features.PMU)
+			}
 		}
 		for i := range in.Spec.Template.Spec.Domain.Devices.Disks {
 			a := &in.Spec.Template.Spec.Domain.Devices.Disks[i]
@@ -261,6 +264,9 @@ func SetObjectDefaults_VirtualMachineInstance(in *VirtualMachineInstance) {
 		if in.Spec.Domain.Features.Pvspinlock != nil {
 			SetDefaults_FeatureState(in.Spec.Domain.Features.Pvspinlock)
 		}
+		if in.Spec.Domain.Features.PMU != nil {
+			SetDefaults_FeatureState(in.Spec.Domain.Features.PMU)
+		}
 	}
 	for i := range in.Spec.Domain.Devices.Disks {
 		a := &in.Spec.Domain.Devices.Disks[i]
@@ -380,6 +386,9 @@ func SetObjectDefaults_VirtualMachineInstancePreset(in *VirtualMachineInstancePr
 			if in.Spec.Domain.Features.Pvspinlock != nil {
 				SetDefaults_FeatureState(in.Spec.Domain.Features.Pvspinlock)
 			}
+			if in.Spec.Domain.Features.PMU != nil {
+				SetDefaults_FeatureState(in.Spec.Domain.Features.PMU)
+			}
 		}
 		for i := range in.Spec.Domain.Devices.Disks {
 			a := &in.Spec.Domain.Devices.Disks[i]
@@ -493,6 +502,9 @@ func SetObjectDefaults_VirtualMachineInstanceReplicaSet(in *VirtualMachineInstan
 			}
 			if in.Spec.Template.Spec.Domain.Features.Pvspinlock != nil {
 				SetDefaults_FeatureState(in.Spec.Template.Spec.Domain.Features.Pvspinlock)
+			}
+			if in.Spec.Template.Spec.Domain.Features.PMU != nil {
+				SetDefaults_FeatureState(in.Spec.Template.Spec.Domain.Features.PMU)
 			}
 		}
 		for i := range in.Spec.Template.Spec.Domain.Devices.Disks {

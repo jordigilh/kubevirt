@@ -9042,6 +9042,10 @@
       "description": "Threads specifies the number of threads inside the vmi. Must be a value greater or equal 1.",
       "type": "integer",
       "format": "int64"
+     },
+     "vcpuScheduler": {
+      "description": "Allows to define the scheduler type, number of dedicated cores and priority.",
+      "$ref": "#/definitions/v1.CPUScheduler"
      }
     }
    },
@@ -9058,6 +9062,29 @@
      },
      "policy": {
       "description": "Policy is the CPU feature attribute which can have the following attributes: force    - The virtual CPU will claim the feature is supported regardless of it being supported by host CPU. require  - Guest creation will fail unless the feature is supported by the host CPU or the hypervisor is able to emulate it. optional - The feature will be supported by virtual CPU if and only if it is supported by host CPU. disable  - The feature will not be supported by virtual CPU. forbid   - Guest creation will fail if the feature is supported by host CPU. Defaults to require",
+      "type": "string"
+     }
+    }
+   },
+   "v1.CPUScheduler": {
+    "description": "Scheduler specifies the scheduler type (values 'batch', 'idle', 'fifo', 'rr') for particular vCPU",
+    "type": "object",
+    "required": [
+     "type",
+     "targetCpus"
+    ],
+    "properties": {
+     "priority": {
+      "description": "Priority sets the value range for the priority depending on the host kernel (usually 1-99).",
+      "type": "integer",
+      "format": "byte"
+     },
+     "targetCpus": {
+      "description": "TargetCPUs contains the list of VCPUs that will use this scheduling configuration",
+      "type": "string"
+     },
+     "type": {
+      "description": "Type defines the scheduler mode that can be used for the vCPUs: batch idle fifo rr",
       "type": "string"
      }
     }
@@ -9828,6 +9855,10 @@
      "kvm": {
       "description": "Configure how KVM presence is exposed to the guest.",
       "$ref": "#/definitions/v1.FeatureKVM"
+     },
+     "pmu": {
+      "description": "Performance Monitor Unit virtualization setting",
+      "$ref": "#/definitions/v1.FeatureState"
      },
      "pvspinlock": {
       "description": "Notify the guest that the host supports paravirtual spinlocks. For older kernels this feature should be explicitly disabled.",

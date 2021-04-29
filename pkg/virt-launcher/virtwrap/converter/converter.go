@@ -107,6 +107,7 @@ type ConverterContext struct {
 	UseVirtioTransitional bool
 	EphemeraldiskCreator  ephemeraldisk.EphemeralDiskCreatorInterface
 	VolumesDiscardIgnore  []string
+	CpuScheduler          *api.CPUScheduler
 }
 
 func contains(volumes []string, name string) bool {
@@ -1519,7 +1520,7 @@ func Convert_v1_VirtualMachineInstance_To_api_Domain(vmi *v1.VirtualMachineInsta
 	if vmi.Spec.Domain.CPU != nil {
 		// Set VM CPU model and vendor
 		if vmi.Spec.Domain.CPU.Model != "" {
-			if vmi.Spec.Domain.CPU.Model == v1.CPUModeHostModel || vmi.Spec.Domain.CPU.Model == v1.CPUModeHostPassthrough {
+			if vmi.Spec.Domain.CPU.Model == v1.CPUModeHostModel || vmi.Spec.Domain.CPU.Model == v1.CPUModeHostPassthrough || vmi.Spec.Domain.CPU.Model == v1.CPUModelMaximum {
 				domain.Spec.CPU.Mode = vmi.Spec.Domain.CPU.Model
 			} else {
 				domain.Spec.CPU.Mode = "custom"
@@ -1557,7 +1558,44 @@ func Convert_v1_VirtualMachineInstance_To_api_Domain(vmi *v1.VirtualMachineInsta
 					log.Log.Reason(err).Error("failed to format domain iothread pinning.")
 					return err
 				}
+			}
+			// RT settings
+			// To be configured by manifest
+			// - CPU Model: Host Passthrough
+			// - VCPU (placement type and number)
+			// - EmulatorPIN CPU set
+			// - VCPU Pin (DedicatedCPUPlacement)
+			// - USB controller should be disabled if no input type usb is found
+			// - Memballoning can be disabled when setting 'autoattachMemBalloon' to false
 
+			// domain.Spec.CPU.Features = append(domain.Spec.CPU.Features, api.CPUFeature{Policy: "require", Name: "tsc-deadline"})
+
+			domain.Spec.Features.PMU = &api.FeatureState{State: "off"}
+			domain.Spec.Features.VMPort = &api.FeatureState{State: "off"}
+			if domain.Spec.CPUTune == nil {
+				domain.Spec.CPUTune = &api.CPUTune{}
+			}
+			snumVCPUs := "0"
+			if len(domain.Spec.CPUTune.VCPUPin) > 1 {
+				snumVCPUs = fmt.Sprintf("0-%d", len(domain.Spec.CPUTune.VCPUPin)-1)
+			}
+			fifoScheduler := api.SchedulerAttributes{Scheduler: "fifo", Priority: 1}
+			domain.Spec.CPUTune.VCPUScheduler = &api.CPUScheduler{SchedulerAttributes: fifoScheduler, VCPUs: snumVCPUs}
+			domain.Spec.MemoryBacking = &api.MemoryBacking{
+				NoSharePages: struct{}{},
+			}
+			if vmi.Spec.Domain.Memory != nil && vmi.Spec.Domain.Memory.Hugepages != nil && len(vmi.Spec.Domain.Memory.Hugepages.PageSize) > 0 {
+				var size, unit string
+				switch vmi.Spec.Domain.Memory.Hugepages.PageSize {
+				case "2Mi":
+					size = "2"
+					unit = "M"
+				case "1Gi":
+					size = "1"
+					unit = "G"
+				}
+				domain.Spec.MemoryBacking.HugePages = &api.HugePages{HugePage: []api.HugePage{{Size: size, Unit: unit, NodeSet: "0"}}}
+				domain.Spec.NUMATune = &api.NUMATune{Memory: &api.NUMAMemory{Mode: "strict", Nodeset: "0"}}
 			}
 		}
 	}

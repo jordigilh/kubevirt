@@ -188,12 +188,30 @@ type DomainSpec struct {
 	VCPU          *VCPU          `xml:"vcpu"`
 	CPUTune       *CPUTune       `xml:"cputune"`
 	IOThreads     *IOThreads     `xml:"iothreads,omitempty"`
+	NUMATune      *NUMATune      `xml:"numatune,omitempty"`
+}
+
+type NUMATune struct {
+	Memory     *NUMAMemory     `xml:"memory,omitempty"`
+	MemoryNode *NUMAMemoryNode `xml:"memnode,omitempty"`
+}
+
+type NUMAMemory struct {
+	Mode    string `xml:"mode,attr,omitempty"`
+	Nodeset string `xml:"nodeset,attr,omitempty"`
+}
+
+type NUMAMemoryNode struct {
+	CellID  uint   `xml:"cellid,attr,omitempty"`
+	Mode    string `xml:"mode,attr,omitempty"`
+	NodeSet string `xml:"nodeset,attr,omitempty"`
 }
 
 type CPUTune struct {
-	VCPUPin     []CPUTuneVCPUPin     `xml:"vcpupin"`
-	IOThreadPin []CPUTuneIOThreadPin `xml:"iothreadpin,omitempty"`
-	EmulatorPin *CPUEmulatorPin      `xml:"emulatorpin"`
+	VCPUPin       []CPUTuneVCPUPin     `xml:"vcpupin"`
+	IOThreadPin   []CPUTuneIOThreadPin `xml:"iothreadpin,omitempty"`
+	EmulatorPin   *CPUEmulatorPin      `xml:"emulatorpin"`
+	VCPUScheduler *CPUScheduler        `xml:"vcpusched,omitempty"`
 }
 
 type CPUTuneVCPUPin struct {
@@ -208,6 +226,16 @@ type CPUTuneIOThreadPin struct {
 
 type CPUEmulatorPin struct {
 	CPUSet string `xml:"cpuset,attr"`
+}
+
+type CPUScheduler struct {
+	SchedulerAttributes
+	VCPUs string `xml:"vcpus,attr"`
+}
+
+type SchedulerAttributes struct {
+	Scheduler string `xml:"scheduler,attr"`
+	Priority  uint   `xml:"priority,attr"`
 }
 
 type VCPU struct {
@@ -253,6 +281,8 @@ type Features struct {
 	SMM        *FeatureEnabled    `xml:"smm,omitempty"`
 	KVM        *FeatureKVM        `xml:"kvm,omitempty"`
 	PVSpinlock *FeaturePVSpinlock `xml:"pvspinlock,omitempty"`
+	PMU        *FeatureState      `xml:"pmu,omitempty"`
+	VMPort     *FeatureState      `xml:"vmport,omitempty"`
 }
 
 type FeatureHyperv struct {
@@ -362,9 +392,10 @@ type Memory struct {
 
 // MemoryBacking mirroring libvirt XML under https://libvirt.org/formatdomain.html#elementsMemoryBacking
 type MemoryBacking struct {
-	HugePages *HugePages           `xml:"hugepages,omitempty"`
-	Source    *MemoryBackingSource `xml:"source,omitempty"`
-	Access    *MemoryBackingAccess `xml:"access,omitempty"`
+	HugePages    *HugePages           `xml:"hugepages,omitempty"`
+	Source       *MemoryBackingSource `xml:"source,omitempty"`
+	Access       *MemoryBackingAccess `xml:"access,omitempty"`
+	NoSharePages struct{}             `xml:"nosharepages,omitempty"`
 }
 
 type MemoryBackingSource struct {
@@ -378,8 +409,9 @@ type HugePages struct {
 
 // HugePage mirroring libvirt XML under hugepages
 type HugePage struct {
-	Size string `xml:"size,attr"`
-	Unit string `xml:"unit,attr"`
+	Size    string `xml:"size,attr"`
+	Unit    string `xml:"unit,attr"`
+	NodeSet string `xml:"nodeset,attr"`
 }
 
 type MemoryBackingAccess struct {

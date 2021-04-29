@@ -32,6 +32,9 @@ const (
 	IOThreadsPolicyAuto    IOThreadsPolicy = "auto"
 	CPUModeHostPassthrough                 = "host-passthrough"
 	CPUModeHostModel                       = "host-model"
+	CPUModelMaximum                        = "maximum"
+	SchedulerFIFO                          = "fifo"
+	SchedulerRoundRobin                    = "rr"
 )
 
 //go:generate swagger-doc
@@ -346,6 +349,25 @@ type CPU struct {
 	// the emulator thread on it.
 	// +optional
 	IsolateEmulatorThread bool `json:"isolateEmulatorThread,omitempty"`
+	// Allows to define the scheduler type, number of dedicated cores and priority.
+	// +optional
+	VCPUScheduler *CPUScheduler `json:"vcpuScheduler,omitempty"`
+}
+
+// Scheduler specifies the scheduler type (values 'batch', 'idle', 'fifo', 'rr') for particular vCPU
+// +k8s:openapi-gen=true
+type CPUScheduler struct {
+	// Type defines the scheduler mode that can be used for the vCPUs:
+	// batch
+	// idle
+	// fifo
+	// rr
+	Type string `json:"type"`
+	// TargetCPUs contains the list of VCPUs that will use this scheduling configuration
+	TargetCPUs string `json:"targetCpus"`
+	// Priority sets the value range for the priority depending on the host kernel (usually 1-99).
+	// +optional
+	Priority uint8 `json:"priority,omitempty"`
 }
 
 // CPUFeature allows specifying a CPU feature.
@@ -972,6 +994,9 @@ type Features struct {
 	// For older kernels this feature should be explicitly disabled.
 	// +optional
 	Pvspinlock *FeatureState `json:"pvspinlock,omitempty"`
+	// Performance Monitor Unit virtualization setting
+	// +optional
+	PMU *FeatureState `json:"pmu,omitempty"`
 }
 
 //

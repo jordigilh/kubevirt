@@ -27,6 +27,9 @@ import (
 	. "github.com/onsi/ginkgo"
 	"github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
+
+	v1 "kubevirt.io/client-go/api/v1"
+	"kubevirt.io/kubevirt/pkg/virt-launcher/virtwrap/api"
 )
 
 var exampleXMLwithNoneMemballoon string
@@ -470,6 +473,7 @@ var _ = Describe("Schema", func() {
 <iothreadpin iothread="0" cpuset="1"/>
 <iothreadpin iothread="1" cpuset="5"/>
 <emulatorpin cpuset="6"/>
+<vcpusched priority="1" scheduler="fifo" vcpus="1-4"/>
 </cputune>`
 		var exampleCpuTune = CPUTune{
 			VCPUPin: []CPUTuneVCPUPin{
@@ -495,6 +499,7 @@ var _ = Describe("Schema", func() {
 			EmulatorPin: &CPUEmulatorPin{
 				CPUSet: "6",
 			},
+			VCPUScheduler: &CPUScheduler{VCPUs: "1-4", SchedulerAttributes: api.SchedulerAttributes{Priority: 1, Scheduler: v1.SchedulerFIFO}},
 		}
 
 		It("Unmarshal into struct", func() {

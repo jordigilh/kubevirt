@@ -164,6 +164,16 @@ func (CPU) SwaggerDoc() map[string]string {
 		"features":              "Features specifies the CPU features list inside the VMI.\n+optional",
 		"dedicatedCpuPlacement": "DedicatedCPUPlacement requests the scheduler to place the VirtualMachineInstance on a node\nwith enough dedicated pCPUs and pin the vCPUs to it.\n+optional",
 		"isolateEmulatorThread": "IsolateEmulatorThread requests one more dedicated pCPU to be allocated for the VMI to place\nthe emulator thread on it.\n+optional",
+		"vcpuScheduler":         "Allows to define the scheduler type, number of dedicated cores and priority.\n+optional",
+	}
+}
+
+func (CPUScheduler) SwaggerDoc() map[string]string {
+	return map[string]string{
+		"":           "Scheduler specifies the scheduler type (values 'batch', 'idle', 'fifo', 'rr') for particular vCPU\n+k8s:openapi-gen=true",
+		"type":       "Type defines the scheduler mode that can be used for the vCPUs:\nbatch\nidle\nfifo\nrr",
+		"targetCpus": "TargetCPUs contains the list of VCPUs that will use this scheduling configuration",
+		"priority":   "Priority sets the value range for the priority depending on the host kernel (usually 1-99).\n+optional",
 	}
 }
 
@@ -483,6 +493,7 @@ func (Features) SwaggerDoc() map[string]string {
 		"smm":        "SMM enables/disables System Management Mode.\nTSEG not yet implemented.\n+optional",
 		"kvm":        "Configure how KVM presence is exposed to the guest.\n+optional",
 		"pvspinlock": "Notify the guest that the host supports paravirtual spinlocks.\nFor older kernels this feature should be explicitly disabled.\n+optional",
+		"pmu":        "Performance Monitor Unit virtualization setting\n+optional",
 	}
 }
 

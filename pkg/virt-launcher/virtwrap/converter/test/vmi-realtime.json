@@ -1,0 +1,70 @@
+{
+   "apiVersion": "kubevirt.io/v1",
+   "kind": "VirtualMachineInterface",
+   "metadata": {
+      "labels": {
+         "kubevirt.io/vm": "vm-realtime"
+      },
+      "name": "vm-realtime",
+      "namespace": "poc"
+   },
+   "spec": {
+      "domain": {
+         "devices": {
+            "autoattachSerialConsole": true,
+            "autoattachMemBalloon": false,
+            "autoattachGraphicsDevice": false,
+            "disks": [
+               {
+                  "disk": {
+                     "bus": "virtio"
+                  },
+                  "name": "imgdisk"
+               }
+            ]
+         },
+         "machine": {
+            "type": ""
+         },
+         "resources": {
+            "requests": {
+               "memory": "3Gi",
+               "cpu": 2
+            },
+            "limits": {
+               "memory": "3Gi",
+               "cpu": 2
+            }
+         },
+         "cpu": {
+            "model": "host-passthrough",
+            "cores": 2,
+            "sockets": 1,
+            "threads": 1,
+            "dedicatedCpuPlacement": true,
+            "isolateEmulatorThread": true,
+            "ioThreadsPolicy": "auto",
+            "features": [
+               {
+                  "name": "tsc-deadline",
+                  "policy": "require"
+               }
+            ]
+         },
+         "memory": {
+            "hugepages": {
+               "pageSize": "1Gi"
+            }
+         }
+      },
+      "terminationGracePeriodSeconds": 0,
+      "volumes": [
+         {
+            "name": "imgdisk",
+            "dataVolume": {
+               "name": "rhel-realtime"
+            }
+         }
+      ]
+   }
+}

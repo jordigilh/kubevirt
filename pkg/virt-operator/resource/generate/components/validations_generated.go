@@ -3604,6 +3604,26 @@ var CRDsValidation map[string]string = map[string]string{
                             the vmi. Must be a value greater or equal 1.
                           format: int32
                           type: integer
+                        vcpuScheduler:
+                          description: Allows to define the scheduler type, number
+                            of dedicated cores and priority.
+                          properties:
+                            priority:
+                              description: Priority sets the value range for the priority
+                                depending on the host kernel (usually 1-99).
+                              type: integer
+                            targetCpus:
+                              description: TargetCPUs contains the list of VCPUs that
+                                will use this scheduling configuration
+                              type: string
+                            type:
+                              description: 'Type defines the scheduler mode that can
+                                be used for the vCPUs: batch idle fifo rr'
+                              type: string
+                          required:
+                          - targetCpus
+                          - type
+                          type: object
                       type: object
                     devices:
                       description: Devices allows adding disks, network interfaces,
@@ -4188,6 +4208,14 @@ var CRDsValidation map[string]string = map[string]string{
                             hidden:
                               description: Hide the KVM hypervisor from standard MSR
                                 based discovery. Defaults to false
+                              type: boolean
+                          type: object
+                        pmu:
+                          description: Performance Monitor Unit virtualization setting
+                          properties:
+                            enabled:
+                              description: Enabled determines if the feature should
+                                be enabled or disabled on the guest. Defaults to true.
                               type: boolean
                           type: object
                         pvspinlock:
@@ -6266,6 +6294,26 @@ var CRDsValidation map[string]string = map[string]string{
                     vmi. Must be a value greater or equal 1.
                   format: int32
                   type: integer
+                vcpuScheduler:
+                  description: Allows to define the scheduler type, number of dedicated
+                    cores and priority.
+                  properties:
+                    priority:
+                      description: Priority sets the value range for the priority
+                        depending on the host kernel (usually 1-99).
+                      type: integer
+                    targetCpus:
+                      description: TargetCPUs contains the list of VCPUs that will
+                        use this scheduling configuration
+                      type: string
+                    type:
+                      description: 'Type defines the scheduler mode that can be used
+                        for the vCPUs: batch idle fifo rr'
+                      type: string
+                  required:
+                  - targetCpus
+                  - type
+                  type: object
               type: object
             devices:
               description: Devices allows adding disks, network interfaces, and others
@@ -6810,6 +6858,14 @@ var CRDsValidation map[string]string = map[string]string{
                     hidden:
                       description: Hide the KVM hypervisor from standard MSR based
                         discovery. Defaults to false
+                      type: boolean
+                  type: object
+                pmu:
+                  description: Performance Monitor Unit virtualization setting
+                  properties:
+                    enabled:
+                      description: Enabled determines if the feature should be enabled
+                        or disabled on the guest. Defaults to true.
                       type: boolean
                   type: object
                 pvspinlock:
@@ -8145,6 +8201,26 @@ var CRDsValidation map[string]string = map[string]string{
                     vmi. Must be a value greater or equal 1.
                   format: int32
                   type: integer
+                vcpuScheduler:
+                  description: Allows to define the scheduler type, number of dedicated
+                    cores and priority.
+                  properties:
+                    priority:
+                      description: Priority sets the value range for the priority
+                        depending on the host kernel (usually 1-99).
+                      type: integer
+                    targetCpus:
+                      description: TargetCPUs contains the list of VCPUs that will
+                        use this scheduling configuration
+                      type: string
+                    type:
+                      description: 'Type defines the scheduler mode that can be used
+                        for the vCPUs: batch idle fifo rr'
+                      type: string
+                  required:
+                  - targetCpus
+                  - type
+                  type: object
               type: object
             devices:
               description: Devices allows adding disks, network interfaces, and others
@@ -8689,6 +8765,14 @@ var CRDsValidation map[string]string = map[string]string{
                     hidden:
                       description: Hide the KVM hypervisor from standard MSR based
                         discovery. Defaults to false
+                      type: boolean
+                  type: object
+                pmu:
+                  description: Performance Monitor Unit virtualization setting
+                  properties:
+                    enabled:
+                      description: Enabled determines if the feature should be enabled
+                        or disabled on the guest. Defaults to true.
                       type: boolean
                   type: object
                 pvspinlock:
@@ -9889,6 +9973,26 @@ var CRDsValidation map[string]string = map[string]string{
                             the vmi. Must be a value greater or equal 1.
                           format: int32
                           type: integer
+                        vcpuScheduler:
+                          description: Allows to define the scheduler type, number
+                            of dedicated cores and priority.
+                          properties:
+                            priority:
+                              description: Priority sets the value range for the priority
+                                depending on the host kernel (usually 1-99).
+                              type: integer
+                            targetCpus:
+                              description: TargetCPUs contains the list of VCPUs that
+                                will use this scheduling configuration
+                              type: string
+                            type:
+                              description: 'Type defines the scheduler mode that can
+                                be used for the vCPUs: batch idle fifo rr'
+                              type: string
+                          required:
+                          - targetCpus
+                          - type
+                          type: object
                       type: object
                     devices:
                       description: Devices allows adding disks, network interfaces,
@@ -10473,6 +10577,14 @@ var CRDsValidation map[string]string = map[string]string{
                             hidden:
                               description: Hide the KVM hypervisor from standard MSR
                                 based discovery. Defaults to false
+                              type: boolean
+                          type: object
+                        pmu:
+                          description: Performance Monitor Unit virtualization setting
+                          properties:
+                            enabled:
+                              description: Enabled determines if the feature should
+                                be enabled or disabled on the guest. Defaults to true.
                               type: boolean
                           type: object
                         pvspinlock:
@@ -13277,6 +13389,29 @@ var CRDsValidation map[string]string = map[string]string{
                                         or equal 1.
                                       format: int32
                                       type: integer
+                                    vcpuScheduler:
+                                      description: Allows to define the scheduler
+                                        type, number of dedicated cores and priority.
+                                      properties:
+                                        priority:
+                                          description: Priority sets the value range
+                                            for the priority depending on the host
+                                            kernel (usually 1-99).
+                                          type: integer
+                                        targetCpus:
+                                          description: TargetCPUs contains the list
+                                            of VCPUs that will use this scheduling
+                                            configuration
+                                          type: string
+                                        type:
+                                          description: 'Type defines the scheduler
+                                            mode that can be used for the vCPUs: batch
+                                            idle fifo rr'
+                                          type: string
+                                      required:
+                                      - targetCpus
+                                      - type
+                                      type: object
                                   type: object
                                 devices:
                                   description: Devices allows adding disks, network
@@ -13915,6 +14050,16 @@ var CRDsValidation map[string]string = map[string]string{
                                           description: Hide the KVM hypervisor from
                                             standard MSR based discovery. Defaults
                                             to false
+                                          type: boolean
+                                      type: object
+                                    pmu:
+                                      description: Performance Monitor Unit virtualization
+                                        setting
+                                      properties:
+                                        enabled:
+                                          description: Enabled determines if the feature
+                                            should be enabled or disabled on the guest.
+                                            Defaults to true.
                                           type: boolean
                                       type: object
                                     pvspinlock:

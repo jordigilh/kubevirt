@@ -11,8 +11,8 @@ ENV BAZEL_VERSION 3.7.2
 ENV KUBEVIRT_CREATE_BAZELRCS false
 
 # Install packages
-RUN dnf install -y dnf-plugins-core && \
-    dnf -y install \
+RUN dnf install -y dnf-plugins-core 
+RUN dnf -y install \
         java-11-openjdk-devel \
         libvirt-devel \
         cpio \
@@ -37,8 +37,8 @@ RUN dnf install -y dnf-plugins-core && \
         redhat-rpm-config \
         jq \
         wget \
-        diffutils && \
-    dnf -y clean all
+        diffutils
+RUN dnf -y clean all
 
 # install gradle (required for swagger)
 RUN wget https://services.gradle.org/distributions/gradle-6.6-bin.zip && \

@@ -20,14 +20,17 @@
 package converter
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path"
 	"reflect"
 	"strconv"
 	"strings"
 
+	containerdisk "kubevirt.io/kubevirt/pkg/container-disk"
 	"kubevirt.io/kubevirt/pkg/virt-controller/services"
 
 	. "github.com/onsi/ginkgo"
@@ -2794,6 +2797,32 @@ var _ = Describe("Converter", func() {
 			expectedNumberQueues := uint(multiQueueMaxQueues)
 			Expect(*(domain.Spec.Devices.Interfaces[0].Driver.Queues)).To(Equal(expectedNumberQueues),
 				"should be capped to the maximum number of queues on tap devices")
+		})
+		var five int = 5
+		var rtContext = &ConverterContext{
+			UseEmulation:      true,
+			CPUSet:            []int{0, 1, 2, 3, 4},
+			EmulatorThreadCpu: &five,
+			DiskType:          map[string]*containerdisk.DiskInfo{"containerdisk": {Format: "vfat"}}}
+		It("should process the CPU scheduler information when CPU tuning is selected", func() {
+			rtManifest, err := ioutil.ReadFile("../../../../bootstrap-realtime/vmi-realtime.json")
+			Expect(err).NotTo(HaveOccurred())
+			err = json.Unmarshal([]byte(rtManifest), &vmi)
+			Expect(err).NotTo(HaveOccurred())
+			// fmt.Printf("%s\n", vmiToDomainXML(vmi, rtContext))
+			domain := vmiToDomain(vmi, rtContext)
+			domainSpec := domain.Spec
+			Expect(domainSpec.CPUTune.VCPUScheduler).To(BeEquivalentTo(&api.CPUScheduler{VCPUs: "0-1", SchedulerAttributes: api.SchedulerAttributes{Scheduler: "fifo", Priority: uint(1)}}))
+			Expect(domainSpec.MemoryBacking.NoSharePages).To(Equal(struct{}{}))
+			Expect(domainSpec.CPUTune.EmulatorPin.CPUSet).To(Equal(fmt.Sprintf("%d", five)))
+			Expect(domainSpec.MemoryBacking.HugePages.HugePage[0]).To(BeEquivalentTo(api.HugePage{Size: "1", Unit: "G", NodeSet: "0"}))
+			Expect(domainSpec.Features.PMU.State).To(Equal("off"))
+			Expect(domainSpec.Features.VMPort.State).To(Equal("off"))
+			Expect(domainSpec.CPU.Mode).To(Equal(v1.CPUModeHostPassthrough))
+			Expect(domainSpec.CPU.Features).To(ContainElement(api.CPUFeature{Name: "tsc-deadline", Policy: "require"}))
+			Expect(domainSpec.VCPU).To(BeEquivalentTo(&api.VCPU{Placement: "static", CPUs: uint32(2)}))
+			Expect(domainSpec.NUMATune).To(BeEquivalentTo(&api.NUMATune{Memory: &api.NUMAMemory{Mode: "strict", Nodeset: "0"}}))
+
 		})
 	})
 

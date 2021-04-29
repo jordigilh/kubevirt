@@ -397,6 +397,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kubevirt.io/client-go/api/v1.CDRomTarget":                                                schema_kubevirtio_client_go_api_v1_CDRomTarget(ref),
 		"kubevirt.io/client-go/api/v1.CPU":                                                        schema_kubevirtio_client_go_api_v1_CPU(ref),
 		"kubevirt.io/client-go/api/v1.CPUFeature":                                                 schema_kubevirtio_client_go_api_v1_CPUFeature(ref),
+		"kubevirt.io/client-go/api/v1.CPUScheduler":                                               schema_kubevirtio_client_go_api_v1_CPUScheduler(ref),
 		"kubevirt.io/client-go/api/v1.CertConfig":                                                 schema_kubevirtio_client_go_api_v1_CertConfig(ref),
 		"kubevirt.io/client-go/api/v1.Chassis":                                                    schema_kubevirtio_client_go_api_v1_Chassis(ref),
 		"kubevirt.io/client-go/api/v1.Clock":                                                      schema_kubevirtio_client_go_api_v1_Clock(ref),
@@ -18927,11 +18928,17 @@ func schema_kubevirtio_client_go_api_v1_CPU(ref common.ReferenceCallback) common
 							Format:      "",
 						},
 					},
+					"vcpuScheduler": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Allows to define the scheduler type, number of dedicated cores and priority.",
+							Ref:         ref("kubevirt.io/client-go/api/v1.CPUScheduler"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"kubevirt.io/client-go/api/v1.CPUFeature"},
+			"kubevirt.io/client-go/api/v1.CPUFeature", "kubevirt.io/client-go/api/v1.CPUScheduler"},
 	}
 }
 
@@ -18958,6 +18965,41 @@ func schema_kubevirtio_client_go_api_v1_CPUFeature(ref common.ReferenceCallback)
 					},
 				},
 				Required: []string{"name"},
+			},
+		},
+	}
+}
+
+func schema_kubevirtio_client_go_api_v1_CPUScheduler(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "Scheduler specifies the scheduler type (values 'batch', 'idle', 'fifo', 'rr') for particular vCPU",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Type defines the scheduler mode that can be used for the vCPUs: batch idle fifo rr",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"targetCpus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "TargetCPUs contains the list of VCPUs that will use this scheduling configuration",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"priority": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Priority sets the value range for the priority depending on the host kernel (usually 1-99).",
+							Type:        []string{"integer"},
+							Format:      "byte",
+						},
+					},
+				},
+				Required: []string{"type", "targetCpus"},
 			},
 		},
 	}
@@ -20442,6 +20484,12 @@ func schema_kubevirtio_client_go_api_v1_Features(ref common.ReferenceCallback) c
 					"pvspinlock": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Notify the guest that the host supports paravirtual spinlocks. For older kernels this feature should be explicitly disabled.",
+							Ref:         ref("kubevirt.io/client-go/api/v1.FeatureState"),
+						},
+					},
+					"pmu": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Performance Monitor Unit virtualization setting",
 							Ref:         ref("kubevirt.io/client-go/api/v1.FeatureState"),
 						},
 					},
