@@ -26,5 +26,5 @@ spec:
   terminationGracePeriodSeconds: 0
   volumes:
   - containerDisk:
-      image: registry:5000/kubevirt/microlivecd-container-disk-demo:devel
+      image: quay.io/jordigilh/microlivecd-container-disk-demo:emulatorsched
     name: containerdisk

@@ -1624,6 +1624,7 @@ func Convert_v1_VirtualMachineInstance_To_api_Domain(vmi *v1.VirtualMachineInsta
 				// - Memballoning can be disabled when setting 'autoattachMemBalloon' to false
 				formatVCPUScheduler(domain, vmi)
 				domain.Spec.Features.PMU = &api.FeatureState{State: "off"}
+				domain.Spec.CPUTune.EmulatorSched = &api.EmulatorSched{Scheduler: api.SchedulerFIFO, Priority: 1}
 			}
 
 			if isNumaPassthrough(vmi) {

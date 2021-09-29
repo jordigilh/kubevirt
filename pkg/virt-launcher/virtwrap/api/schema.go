@@ -206,6 +206,12 @@ type CPUTune struct {
 	IOThreadPin   []CPUTuneIOThreadPin `xml:"iothreadpin,omitempty"`
 	EmulatorPin   *CPUEmulatorPin      `xml:"emulatorpin"`
 	VCPUScheduler *VCPUScheduler       `xml:"vcpusched,omitempty"`
+	EmulatorSched *EmulatorSched       `xml:"emulatorsched,omitempty"`
+}
+
+type EmulatorSched struct {
+	Scheduler string `xml:"scheduler,attr"`
+	Priority  uint   `xml:"priority,attr"`
 }
 
 type NUMATune struct {
