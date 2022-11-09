@@ -2922,6 +2922,7 @@ var _ = Describe("Converter", func() {
 				Realtime:              &v1.Realtime{},
 				DedicatedCPUPlacement: true,
 			}
+			vmi.Status = v1.VirtualMachineInstanceStatus{}
 		})
 		It("should configure the VCPU scheduler information utilizing all pinned vcpus when realtime is enabled", func() {
 			domain := vmiToDomain(vmi, rtContext)
@@ -2936,6 +2937,15 @@ var _ = Describe("Converter", func() {
 			domain := vmiToDomain(vmi, rtContext)
 			Expect(domain.Spec.CPUTune.VCPUScheduler).NotTo(BeNil())
 			Expect(domain.Spec.CPUTune.VCPUScheduler).To(BeEquivalentTo(&api.VCPUScheduler{VCPUs: "0-2,^1", Scheduler: api.SchedulerFIFO, Priority: uint(1)}))
+		})
+
+		It("should not configure the VCPU schedule information when the VMI is non-root", func() {
+			vmi.Spec.Domain.CPU.Cores = 3
+			vmi.Spec.Domain.CPU.Realtime.Mask = "0-2,^1"
+			vmi.Status.RuntimeUser = 3
+			domain := vmiToDomain(vmi, rtContext)
+			Expect(domain.Spec.CPUTune.VCPUScheduler).To(BeNil())
+
 		})
 	})
 
