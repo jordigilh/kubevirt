@@ -24,6 +24,7 @@ import (
 
 	v1 "kubevirt.io/api/core/v1"
 
+	"kubevirt.io/client-go/log"
 	diskutils "kubevirt.io/kubevirt/pkg/ephemeral-disk-utils"
 	hostdisk "kubevirt.io/kubevirt/pkg/host-disk"
 	"kubevirt.io/kubevirt/pkg/safepath"
@@ -237,6 +238,7 @@ func (*VirtualMachineController) prepareVFIO(vmi *v1.VirtualMachineInstance, res
 }
 
 func (d *VirtualMachineController) preparevCPUSchedulerAndPriority(vmi *v1.VirtualMachineInstance, res isolation.IsolationResult) error {
+	log.Log.Object(vmi).Infof(">>>>>>>>>>>>>>Is is a realtime VM? %t", vmi.IsRealtimeEnabled())
 	if vmi.IsRealtimeEnabled() {
 		vcpus, err := getvCPUThreadIDs(res.Pid())
 		if err != nil {
@@ -246,6 +248,7 @@ func (d *VirtualMachineController) preparevCPUSchedulerAndPriority(vmi *v1.Virtu
 		if err != nil {
 			return err
 		}
+		log.Log.Object(vmi).Infof(">>>>>>>>>>>>>>Mask is %+v", mask)
 		for vcpuID, threadID := range vcpus {
 			if isRealtimevCPU(mask, vcpuID) {
 				param := SchedParam{sched_priority: -1}
@@ -253,6 +256,7 @@ func (d *VirtualMachineController) preparevCPUSchedulerAndPriority(vmi *v1.Virtu
 				if err != nil {
 					return err
 				}
+				log.Log.Object(vmi).Infof(">>>>>>>>>>>>>>Setting scheduler and priority to thread ID %d", tid)
 				SchedSetScheduler(tid, SCHED_FIFO, param)
 			}
 		}
