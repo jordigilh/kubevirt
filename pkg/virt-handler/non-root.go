@@ -50,7 +50,7 @@ var (
 
 	// parse thread comm value expression
 	vcpuRegex = regexp.MustCompile(`^CPU (\d+)/KVM$`) // These threads follow this naming pattern as their command value (/proc/{pid}/task/{taskid}/comm)
-// QEMU uses threads to represent vCPUs.
+// QEMU uses threads to represent VCPUs.
 
 )
 
@@ -237,10 +237,14 @@ func (*VirtualMachineController) prepareVFIO(vmi *v1.VirtualMachineInstance, res
 	return nil
 }
 
-func (d *VirtualMachineController) preparevCPUSchedulerAndPriority(vmi *v1.VirtualMachineInstance, res isolation.IsolationResult) error {
+func (d *VirtualMachineController) prepareVCPUSchedulerAndPriority(vmi *v1.VirtualMachineInstance, res isolation.IsolationResult) error {
 	log.Log.Object(vmi).Infof(">>>>>>>>>>>>>>Is is a realtime VM? %t", vmi.IsRealtimeEnabled())
 	if vmi.IsRealtimeEnabled() {
-		vcpus, err := getvCPUThreadIDs(res.Pid())
+		qemuProcess, err := isolation.GetQEMUProcess(res.PPid())
+		if err != nil {
+			return err
+		}
+		vcpus, err := getVCPUThreadIDs(qemuProcess.Pid())
 		if err != nil {
 			return err
 		}
@@ -250,21 +254,21 @@ func (d *VirtualMachineController) preparevCPUSchedulerAndPriority(vmi *v1.Virtu
 		}
 		log.Log.Object(vmi).Infof(">>>>>>>>>>>>>>Mask is %+v", mask)
 		for vcpuID, threadID := range vcpus {
-			if isRealtimevCPU(mask, vcpuID) {
+			if isRealtimeVCPU(mask, vcpuID) {
 				param := SchedParam{sched_priority: -1}
 				tid, err := strconv.Atoi(threadID)
 				if err != nil {
 					return err
 				}
 				log.Log.Object(vmi).Infof(">>>>>>>>>>>>>>Setting scheduler and priority to thread ID %d", tid)
-				SchedSetScheduler(tid, SCHED_FIFO, param)
+				schedSetScheduler(tid, SCHED_FIFO, param)
 			}
 		}
 	}
 	return nil
 }
 
-func isRealtimevCPU(parsedMask map[string]maskType, vcpuID string) bool {
+func isRealtimeVCPU(parsedMask map[string]maskType, vcpuID string) bool {
 	if len(parsedMask) == 0 {
 		return true
 	}
@@ -274,7 +278,7 @@ func isRealtimevCPU(parsedMask map[string]maskType, vcpuID string) bool {
 	return false
 }
 
-func isvCPU(comm []byte) (string, bool) {
+func isVCPU(comm []byte) (string, bool) {
 	if !vcpuRegex.MatchString(string(comm)) {
 		return "", false
 	}
@@ -282,7 +286,7 @@ func isvCPU(comm []byte) (string, bool) {
 	return string(v[1]), true
 }
 
-func getvCPUThreadIDs(pid int) (map[string]string, error) {
+func getVCPUThreadIDs(pid int) (map[string]string, error) {
 
 	p := filepath.Join(string(os.PathSeparator), "proc", strconv.Itoa(pid), "task")
 	d, err := os.ReadDir(p)
@@ -296,7 +300,7 @@ func getvCPUThreadIDs(pid int) (map[string]string, error) {
 			if err != nil {
 				return nil, err
 			}
-			if v, ok := isvCPU(c); ok {
+			if v, ok := isVCPU(c); ok {
 				ret[v] = f.Name()
 			}
 		}
@@ -376,7 +380,7 @@ func parseCPUMask(mask string) (map[string]maskType, error) {
 	return vcpus, nil
 }
 
-func SchedSetScheduler(pid int, p Policy, param SchedParam) error {
+func schedSetScheduler(pid int, p Policy, param SchedParam) error {
 	_, _, e1 := unix.Syscall(unix.SYS_SCHED_SETSCHEDULER, uintptr(pid), uintptr(p), uintptr(unsafe.Pointer(&param)))
 	if e1 != 0 {
 		return syscall.Errno(e1)
@@ -398,7 +402,7 @@ func (d *VirtualMachineController) nonRootSetup(origVMI, vmi *v1.VirtualMachineI
 	if err := d.prepareVFIO(origVMI, res); err != nil {
 		return err
 	}
-	if err := d.preparevCPUSchedulerAndPriority(origVMI, res); err != nil {
+	if err := d.prepareVCPUSchedulerAndPriority(origVMI, res); err != nil {
 		return err
 	}
 	return nil

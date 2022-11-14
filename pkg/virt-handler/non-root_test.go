@@ -11,7 +11,7 @@ var _ = Describe("Set pthread scheduling type and priority", func() {
 
 	Context("when parsing the thread command for CPU ID", func() {
 		DescribeTable("extracts the CPU ID", func(comm []byte, cpuID string, parseOK bool) {
-			v, ok := isvCPU(comm)
+			v, ok := isVCPU(comm)
 			Expect(ok).To(Equal(parseOK))
 			Expect(v).To(Equal(cpuID))
 		},
