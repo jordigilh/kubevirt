@@ -255,13 +255,13 @@ func (d *VirtualMachineController) prepareVCPUSchedulerAndPriority(vmi *v1.Virtu
 		log.Log.Object(vmi).Infof(">>>>>>>>>>>>>>Mask is %+v", mask)
 		for vcpuID, threadID := range vcpus {
 			if isRealtimeVCPU(mask, vcpuID) {
-				param := SchedParam{sched_priority: -1}
+				// param := SchedParam{sched_priority: -1}
 				tid, err := strconv.Atoi(threadID)
 				if err != nil {
 					return err
 				}
 				log.Log.Object(vmi).Infof(">>>>>>>>>>>>>>Setting scheduler and priority to thread ID %d", tid)
-				schedSetScheduler(tid, SCHED_FIFO, param)
+				// schedSetScheduler(tid, SCHED_FIFO, param)
 			}
 		}
 	}
@@ -375,8 +375,9 @@ func parseCPUMask(mask string) (map[string]maskType, error) {
 		default:
 			return nil, fmt.Errorf("invalid mask value '%s' in '%s'", m, mask)
 		}
-
 	}
+	// CPU 0 is used for housekeeping. Changes to the scheduling policy and priority don't apply.
+	vcpus["0"] = disabled
 	return vcpus, nil
 }
 

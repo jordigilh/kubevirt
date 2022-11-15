@@ -40,7 +40,7 @@ var _ = Describe("Parse the vCPU mask", func() {
 			Entry("Invalid expression", "a-b,33_", nil, fmt.Errorf("invalid mask value 'a-b' in 'a-b,33_'")),
 			Entry("Invalid mask value", "3,3a", nil, fmt.Errorf("invalid mask value '3a' in '3,3a'")),
 			// With range
-			Entry("Correctly extracts a single range", "0-2", map[string]maskType{"0": enabled, "1": enabled, "2": enabled}, nil),
+			Entry("Correctly extracts a single range", "1-2", map[string]maskType{"0": disabled, "1": enabled, "2": enabled}, nil),
 			Entry("Correctly extracts a multiple non overlapping ranges", "0-2,5-6", map[string]maskType{"0": enabled, "1": enabled, "2": enabled, "5": enabled, "6": enabled}, nil),
 			Entry("Correctly extracts a multiple overlapping ranges", "0-2,2-3", map[string]maskType{"0": enabled, "1": enabled, "2": enabled, "3": enabled}, nil),
 			Entry("Correctly extracts a single range with double digit vcpu IDs", "10-12", map[string]maskType{"10": enabled, "11": enabled, "12": enabled}, nil),
