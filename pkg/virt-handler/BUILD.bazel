@@ -66,6 +66,7 @@ go_test(
     timeout = "long",
     srcs = [
         "migration_test.go",
+        "realtime_test.go",
         "virt_handler_suite_test.go",
         "vm_test.go",
     ],
